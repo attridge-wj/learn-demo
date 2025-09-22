@@ -97,7 +97,6 @@
     "productName": "Rebirth",
     "npmRebuild": false,
     "copyright": "Copyright © 2024",
-    "afterSign": "scripts/notarize.js",
     "directories": {
       "output": "release",
       "buildResources": "build"
