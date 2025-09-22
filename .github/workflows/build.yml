@@ -89,6 +89,12 @@ jobs:
           p12-file-base64: ${{ secrets.MACOS_CERTIFICATE_P12 }}
           p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
 
+      # 设置签名环境变量
+      - name: Setup signing environment
+        run: |
+          echo "CSC_TEAM_ID=${{ secrets.CSC_TEAM_ID }}" >> $GITHUB_ENV
+          echo "CSC_NAME=${{ secrets.CSC_NAME }}" >> $GITHUB_ENV
+
       - name: Build for macOS ${{ matrix.platform }}
         run: |
           echo "Building macOS ${{ matrix.platform }} version..."
