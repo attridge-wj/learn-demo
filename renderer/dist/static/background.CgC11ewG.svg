@@ -1,0 +1,400 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 渐变定义 -->
+  <defs>
+    <!-- 思维导图节点渐变 -->
+    <linearGradient id="mindmapGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE4E1;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#FFC0CB;stop-opacity:0.9"/>
+    </linearGradient>
+    <linearGradient id="mindmapGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E0FFFF;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#B0E2FF;stop-opacity:0.9"/>
+    </linearGradient>
+    <linearGradient id="mindmapGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E0FFF0;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#98FB98;stop-opacity:0.9"/>
+    </linearGradient>
+    
+    <!-- 画板元素渐变 -->
+    <linearGradient id="canvasGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F0F8FF;stop-opacity:0.5"/>
+      <stop offset="100%" style="stop-color:#E6E6FA;stop-opacity:0.5"/>
+    </linearGradient>
+
+    <!-- 富文本渐变 -->
+    <linearGradient id="textGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FFB6C1;stop-opacity:0.2"/>
+      <stop offset="100%" style="stop-color:#FFC0CB;stop-opacity:0.2"/>
+    </linearGradient>
+    <linearGradient id="textGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#B0E2FF;stop-opacity:0.2"/>
+      <stop offset="100%" style="stop-color:#87CEEB;stop-opacity:0.2"/>
+    </linearGradient>
+
+    <!-- 添加黄色线条渐变 -->
+    <linearGradient id="yellowLineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:0.6"/>
+      <stop offset="50%" style="stop-color:#FFA500;stop-opacity:0.4"/>
+      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:0.3"/>
+    </linearGradient>
+
+    <!-- 多维表渐变 -->
+    <linearGradient id="tableGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#6366F1;stop-opacity:0.9"/>
+    </linearGradient>
+    
+    <!-- 标注渐变 -->
+    <linearGradient id="annotationGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F472B6;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#EC4899;stop-opacity:0.9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 背景网格 -->
+  <!-- <pattern id="grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0f0f0" stroke-width="1"/>
+  </pattern> -->
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+
+  <!-- 黄色装饰螺旋线 -->
+  <path d="M 100 100 
+           C 300 100, 400 200, 500 300
+           S 700 500, 800 400
+           S 1000 200, 1100 400
+           S 1300 700, 1400 500"
+      stroke="url(#yellowLineGradient)" 
+      stroke-width="20" 
+      fill="none"
+      stroke-linecap="round"/>
+  
+  <!-- 图标组 - 便签 -->
+  <g transform="translate(580,190) rotate(-5)">
+    <!-- 便签背景 - 使用淡紫色背景 -->
+    <rect x="0" y="0" 
+          width="112" height="140" 
+          rx="16" 
+          fill="#F8F0FF" 
+          filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"/>
+    
+    <!-- 便签图标 -->
+    <g transform="scale(1.4) translate(15,15)">
+      <rect x="0" y="0" 
+            width="24" height="24" 
+            rx="6" 
+            fill="#FFE082"/>
+    </g>
+    
+    <!-- 便签文字 -->
+    <text x="25" y="80" 
+          font-family="Arial" 
+          font-size="14" 
+          fill="#666666">便签</text>
+    
+    <!-- 彩色方块组 -->
+    <g transform="translate(25,100)">
+      <rect x="0" y="0" 
+            width="16" height="16" 
+            rx="4" 
+            fill="#FFB6C1"/>
+      <rect x="20" y="0" 
+            width="16" height="16" 
+            rx="4" 
+            fill="#FFD700"/>
+      <rect x="40" y="0" 
+            width="16" height="16" 
+            rx="4" 
+            fill="#B39DDB"/>
+    </g>
+  </g>
+
+  <!-- 图标组 - 画笔 -->
+  <g transform="translate(520,380) rotate(8)">
+    <!-- 背景卡片 -->
+    <rect x="0" y="0" 
+          width="112" height="140" 
+          rx="16" 
+          fill="#FFF8E1" 
+          filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"/>
+    
+    <!-- 新的钢笔图标 -->
+    <g transform="translate(21,21)">
+      <circle cx="17" cy="17" 
+              r="17" 
+              fill="white" 
+              stroke="#FFB74D" 
+              stroke-width="2"/>
+      <!-- 钢笔图形 -->
+      <path d="M 12 22 L 22 12 L 24 14 L 14 24 L 11 25 L 12 22 Z
+               M 22 12 L 24 10 L 26 12 L 24 14 Z" 
+            fill="#FFB74D"/>
+    </g>
+    
+    <!-- 放大后的文字和底部图标 -->
+    <g transform="scale(1.4) translate(15,45)">
+      <text x="0" y="40" 
+            font-family="Arial" 
+            font-size="14" 
+            fill="#666666">画笔</text>
+      
+      <path d="M 0 8 L 8 0 L 16 8 L 8 16 Z" 
+            fill="none" 
+            stroke="#666" 
+            stroke-width="1.5"/>
+      <path d="M 24 0 L 32 8 L 24 16" 
+            fill="none" 
+            stroke="#666" 
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+      <circle cx="48" cy="8" 
+              r="8" 
+              fill="none" 
+              stroke="#666" 
+              stroke-width="1.5"/>
+    </g>
+  </g>
+
+  <!-- 图标组 - 流程图 -->
+  <g transform="translate(580,650) rotate(-6)">
+    <!-- 背景卡片 -->
+    <rect x="0" y="0" 
+          width="112" height="140" 
+          rx="16" 
+          fill="#FFF5F5" 
+          filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"/>
+    
+    <!-- 流程图内容等比例放大1.4倍 -->
+    <g transform="scale(1.4) translate(15,15)">
+      <text x="0" y="42" 
+            font-family="Arial" 
+            font-size="14" 
+            fill="#666666">流程图</text>
+      
+      <circle cx="12" cy="12" 
+              r="12" 
+              fill="white" 
+              stroke="#6366F1" 
+              stroke-width="2"/>
+      <!-- S形曲线 -->
+      <path d="M 8 8 C 12 8, 12 16, 16 16" 
+            stroke="#6366F1" 
+            stroke-width="2" 
+            stroke-linecap="round"/>
+    </g>
+    
+    <!-- 放大后的文字和底部流程图示例 -->
+    <g transform="scale(1.4) translate(15,70)">
+      <!-- 节点和连线 -->
+      <rect x="0" y="0" 
+            width="12" height="12" 
+            rx="3" 
+            fill="#6366F1"/>
+      
+      <path d="M 12 6 L 24 6" 
+            stroke="#666" 
+            stroke-width="1" 
+            stroke-dasharray="2,2"/>
+      
+      <rect x="24" y="0" 
+            width="12" height="12" 
+            rx="3" 
+            fill="#F59E0B"/>
+      
+      <path d="M 36 6 L 48 6" 
+            stroke="#666" 
+            stroke-width="1" 
+            stroke-dasharray="2,2"/>
+      
+      <circle cx="54" cy="6" 
+              r="6" 
+              fill="#EC4899"/>
+    </g>
+  </g>
+
+  <!-- 思维导图部分 -->
+  <g transform="translate(60,460) scale(0.67) rotate(4)">
+    <!-- 中心节点 -->
+    <rect x="-70" y="-20" width="140" height="40" rx="8" fill="url(#mindmapGradient1)"/>
+    
+    <!-- 连接线 - 所有转折点都使用圆角 -->
+    <!-- 上方分支 -->
+    <path d="M 70 0 C 85 0, 85 -80, 150 -80" 
+          stroke="#FFB6C1" 
+          stroke-width="2" 
+          fill="none"/>
+    
+    <!-- 中间分支 - 使用贝塞尔曲线使其更平滑 -->
+    <path d="M 70 0 C 110 0, 110 0, 150 0" 
+          stroke="#87CEEB" 
+          stroke-width="2" 
+          fill="none"/>
+    
+    <!-- 下方分支 -->
+    <path d="M 70 0 C 85 0, 85 80, 150 80" 
+          stroke="#98FB98" 
+          stroke-width="2" 
+          fill="none"/>
+    
+    <!-- 子节点 - 调整位置使其垂直居中 -->
+    <rect x="150" y="-90" width="120" height="30" rx="8" fill="url(#mindmapGradient1)"/>
+    <rect x="150" y="-15" width="120" height="30" rx="8" fill="url(#mindmapGradient2)"/>
+    <rect x="150" y="65" width="120" height="30" rx="8" fill="url(#mindmapGradient3)"/>
+    
+    <!-- 末端节点连接线 - 使用更平滑的贝塞尔曲线 -->
+    <path d="M 270 -75 C 285 -75, 285 -120, 320 -120" 
+          stroke="#FFB6C1" 
+          stroke-width="2" 
+          fill="none"/>
+    <path d="M 270 -75 C 285 -75, 285 -40, 320 -40" 
+          stroke="#FFB6C1" 
+          stroke-width="2" 
+          fill="none"/>
+          
+    <rect x="320" y="-132.5" width="100" height="25" rx="6" fill="url(#mindmapGradient2)"/>
+    <rect x="320" y="-52.5" width="100" height="25" rx="6" fill="url(#mindmapGradient1)"/>
+    
+    <!-- 更新后的文本 -->
+    <text x="0" y="5" text-anchor="middle" fill="#666" font-size="14" font-family="Arial">主题</text>
+    <text x="210" y="-70" text-anchor="middle" fill="#666" font-size="12" font-family="Arial">节点笔记</text>
+    <text x="210" y="5" text-anchor="middle" fill="#666" font-size="12" font-family="Arial">无限画板</text>
+    <text x="210" y="85" text-anchor="middle" fill="#666" font-size="12" font-family="Arial">强大编辑内核</text>
+  </g>
+
+  <!-- 无限画板元素 -->
+  <g transform="translate(760,100)">
+    <!-- 画板分组 -->
+    <rect x="0" y="0" width="400" height="300" rx="20" fill="url(#canvasGradient)" stroke="#E6E6FA" stroke-width="2"/>
+    
+    <!-- 画板工具栏 -->
+    <rect x="20" y="20" width="360" height="40" rx="8" fill="white" opacity="0.8"/>
+    <circle cx="45" cy="40" r="8" fill="#FFB6C1"/>
+    <circle cx="75" cy="40" r="8" fill="#87CEEB"/>
+    <circle cx="105" cy="40" r="8" fill="#98FB98"/>
+    
+    <!-- 画板内容示例 -->
+    <path d="M 50 100 Q 200 50 350 200" fill="none" stroke="#FFB6C1" stroke-width="3"/>
+    <rect x="100" y="150" width="80" height="80" fill="#87CEEB" opacity="0.5"/>
+    <circle cx="250" cy="180" r="40" fill="#98FB98" opacity="0.5"/>
+  </g>
+
+  <!-- 重新设计的富文本编辑器 -->
+  <g transform="translate(200,660) scale(0.67)">
+    <!-- 主体分组 -->
+    <rect x="0" y="0" width="400" height="250" rx="12" fill="white" stroke="#E6E6FA" stroke-width="2"/>
+    
+    <!-- 工具栏背景 -->
+    <rect x="10" y="10" width="380" height="40" rx="8" fill="#F8F9FA"/>
+    
+    <!-- 工具栏按钮组 -->
+    <g transform="translate(20,20)">
+      <!-- 样式按钮组 -->
+      <rect x="0" y="0" width="120" height="20" rx="4" fill="#fff" stroke="#E6E6FA"/>
+      <text x="10" y="15" font-size="12" fill="#666">B</text>
+      <text x="30" y="15" font-size="12" font-style="italic" fill="#666">I</text>
+      <text x="50" y="15" text-decoration="underline" font-size="12" fill="#666">U</text>
+      
+      <!-- 对齐按钮组 -->
+      <rect x="130" y="0" width="90" height="20" rx="4" fill="#fff" stroke="#E6E6FA"/>
+      <line x1="145" y1="5" x2="165" y2="5" stroke="#666" stroke-width="1"/>
+      <line x1="145" y1="10" x2="155" y2="10" stroke="#666" stroke-width="1"/>
+      <line x1="145" y1="15" x2="160" y2="15" stroke="#666" stroke-width="1"/>
+      
+      <!-- 颜色选择器 -->
+      <rect x="230" y="0" width="20" height="20" rx="4" fill="#FFB6C1"/>
+      <rect x="260" y="0" width="20" height="20" rx="4" fill="#87CEEB"/>
+      <rect x="290" y="0" width="20" height="20" rx="4" fill="#98FB98"/>
+    </g>
+    
+    <!-- 文本内容区域 -->
+    <rect x="10" y="60" width="380" height="180" rx="8" fill="#FFFFFF"/>
+    <!-- 示例文本内容 -->
+    <rect x="20" y="80" width="340" height="20" rx="4" fill="url(#textGradient1)"/>
+    <rect x="20" y="110" width="280" height="20" rx="4" fill="url(#textGradient2)"/>
+    <rect x="20" y="140" width="320" height="20" rx="4" fill="url(#textGradient1)"/>
+    <rect x="20" y="170" width="300" height="20" rx="4" fill="url(#textGradient2)"/>
+  </g>
+
+  <!-- 装饰性连接线 -->
+  <path d="M 600 200 Q 700 300 800 250" fill="none" stroke="#E6E6FA" stroke-width="2" stroke-dasharray="5,5"/>
+  <path d="M 700 500 Q 800 400 900 450" fill="none" stroke="#FFB6C1" stroke-width="2" stroke-dasharray="5,5"/>
+
+  <!-- 多维表元素 -->
+  <g transform="translate(200,100) rotate(5)">
+    <!-- 背景卡片 -->
+    <rect x="0" y="0" 
+          width="240" height="180" 
+          rx="16" 
+          fill="#F8F7FF" 
+          filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"/>
+    
+    <!-- 表格示意 -->
+    <g transform="translate(20,20)">
+      <!-- 表头 -->
+      <rect x="0" y="0" width="200" height="30" rx="6" fill="url(#tableGradient1)"/>
+      <rect x="0" y="0" width="66" height="30" rx="6" fill="url(#tableGradient1)" stroke="white" stroke-width="1"/>
+      <rect x="67" y="0" width="66" height="30" rx="6" fill="url(#tableGradient1)" stroke="white" stroke-width="1"/>
+      <rect x="134" y="0" width="66" height="30" rx="6" fill="url(#tableGradient1)" stroke="white" stroke-width="1"/>
+      
+      <!-- 数据行 -->
+      <g transform="translate(0,31)">
+        <rect x="0" y="0" width="200" height="100" rx="6" fill="white" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="66" y1="0" x2="66" y2="100" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="133" y1="0" x2="133" y2="100" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="0" y1="33" x2="200" y2="33" stroke="#E2E8F0" stroke-width="1"/>
+        <line x1="0" y1="66" x2="200" y2="66" stroke="#E2E8F0" stroke-width="1"/>
+      </g>
+    </g>
+    
+    <!-- 图标和标题 -->
+    <g transform="translate(20,140)">
+      <rect x="0" y="0" width="24" height="24" rx="6" fill="url(#tableGradient1)"/>
+      <text x="32" y="16" font-family="Arial" font-size="14" fill="#666666">多维表</text>
+    </g>
+  </g>
+
+  <!-- 标注元素 -->
+  <g transform="translate(760,700) rotate(-3)">
+    <!-- 背景卡片 -->
+    <rect x="0" y="0" 
+          width="200" height="160" 
+          rx="16" 
+          fill="#FFF5F7" 
+          filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"/>
+    
+    <!-- 标注示意图 -->
+    <g transform="translate(20,20)">
+      <!-- 文档背景 -->
+      <rect x="0" y="0" width="160" height="80" rx="4" fill="white" stroke="#E2E8F0" stroke-width="1"/>
+      
+      <!-- 标注线条 -->
+      <path d="M 20 20 L 140 20" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="2,2"/>
+      <path d="M 20 40 L 140 40" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="2,2"/>
+      <path d="M 20 60 L 140 60" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="2,2"/>
+      
+      <!-- 标注高亮 -->
+      <rect x="30" y="15" width="60" height="10" rx="2" fill="url(#annotationGradient)" opacity="0.3"/>
+      <rect x="50" y="35" width="40" height="10" rx="2" fill="url(#annotationGradient)" opacity="0.3"/>
+      
+      <!-- 标注图标 -->
+      <circle cx="150" cy="20" r="4" fill="url(#annotationGradient)"/>
+      <circle cx="150" cy="40" r="4" fill="url(#annotationGradient)"/>
+    </g>
+    
+    <!-- 图标和标题 -->
+    <g transform="translate(20,120)">
+      <rect x="0" y="0" width="24" height="24" rx="6" fill="url(#annotationGradient)"/>
+      <text x="32" y="16" font-family="Arial" font-size="14" fill="#666666">标注</text>
+    </g>
+  </g>
+
+  <!-- 装饰性连接线 -->
+  <path d="M 900 400 Q 950 250 1000 100" 
+        stroke="#E6E6FA" 
+        stroke-width="2" 
+        stroke-dasharray="5,5"/>
+  <path d="M 1000 500 Q 1050 600 1100 700" 
+        stroke="#FFB6C1" 
+        stroke-width="2" 
+        stroke-dasharray="5,5"/>
+</svg> 

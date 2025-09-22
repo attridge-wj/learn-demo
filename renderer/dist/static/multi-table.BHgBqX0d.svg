@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+    <!-- 定义渐变 -->
+    <defs>
+        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#FF8E8E;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#4ECDC4;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#6BE5D9;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FFD93D;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#FFE566;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#6C5CE7;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#8F7FF7;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+
+    <!-- 背景矩形 -->
+    <!-- <rect x="200" y="150" width="400" height="300" rx="20" fill="#f8f9fa" /> -->
+
+    <!-- 多维表主体 -->
+    <g transform="translate(260,180)">
+        <!-- 表头区域 -->
+        <rect x="0" y="0" width="280" height="40" rx="8" fill="url(#gradient4)" />
+        <rect x="10" y="10" width="60" height="20" rx="4" fill="#fff" opacity="0.6" />
+        <rect x="80" y="10" width="60" height="20" rx="4" fill="#fff" opacity="0.6" />
+        <rect x="150" y="10" width="60" height="20" rx="4" fill="#fff" opacity="0.6" />
+        <rect x="220" y="10" width="50" height="20" rx="4" fill="#fff" opacity="0.6" />
+
+        <!-- 左侧维度列 -->
+        <rect x="0" y="40" width="70" height="180" rx="8" fill="url(#gradient1)" />
+        <g transform="translate(10,50)">
+            <rect x="0" y="0" width="50" height="20" rx="4" fill="#fff" opacity="0.6" />
+            <rect x="0" y="30" width="50" height="20" rx="4" fill="#fff" opacity="0.6" />
+            <rect x="0" y="60" width="50" height="20" rx="4" fill="#fff" opacity="0.6" />
+            <rect x="0" y="90" width="50" height="20" rx="4" fill="#fff" opacity="0.6" />
+            <rect x="0" y="120" width="50" height="20" rx="4" fill="#fff" opacity="0.6" />
+        </g>
+
+        <!-- 数据区域 -->
+        <g transform="translate(80,50)">
+            <!-- 第一列 -->
+            <rect x="0" y="0" width="60" height="30" rx="6" fill="url(#gradient2)" opacity="0.7" />
+            <rect x="0" y="40" width="60" height="30" rx="6" fill="url(#gradient2)" opacity="0.6" />
+            <rect x="0" y="80" width="60" height="30" rx="6" fill="url(#gradient2)" opacity="0.5" />
+            
+            <!-- 第二列 -->
+            <rect x="70" y="0" width="60" height="30" rx="6" fill="url(#gradient3)" opacity="0.7" />
+            <rect x="70" y="40" width="60" height="30" rx="6" fill="url(#gradient3)" opacity="0.6" />
+            <rect x="70" y="80" width="60" height="30" rx="6" fill="url(#gradient3)" opacity="0.5" />
+            
+            <!-- 第三列 -->
+            <rect x="140" y="0" width="50" height="30" rx="6" fill="url(#gradient1)" opacity="0.7" />
+            <rect x="140" y="40" width="50" height="30" rx="6" fill="url(#gradient1)" opacity="0.6" />
+            <rect x="140" y="80" width="50" height="30" rx="6" fill="url(#gradient1)" opacity="0.5" />
+        </g>
+
+        <!-- 分页控制器 -->
+        <g transform="translate(80,170)">
+            <rect x="0" y="0" width="190" height="30" rx="6" fill="url(#gradient4)" opacity="0.3" />
+            <rect x="10" y="10" width="30" height="10" rx="3" fill="#fff" opacity="0.6" />
+            <rect x="50" y="10" width="30" height="10" rx="3" fill="#fff" opacity="0.6" />
+            <rect x="90" y="10" width="30" height="10" rx="3" fill="#fff" opacity="0.6" />
+        </g>
+    </g>
+
+    <!-- 装饰元素 -->
+    <rect x="240" y="180" width="16" height="16" rx="4" fill="#FF6B6B" opacity="0.3" />
+    <rect x="540" y="400" width="12" height="12" rx="3" fill="#4ECDC4" opacity="0.3" />
+    <rect x="500" y="170" width="10" height="10" rx="3" fill="#FFD93D" opacity="0.3" />
+    <rect x="220" y="380" width="14" height="14" rx="4" fill="#6C5CE7" opacity="0.3" />
+    
+    <!-- 右上角装饰 -->
+    <g transform="translate(480,170)">
+        <rect x="0" y="0" width="24" height="4" rx="2" fill="#6C5CE7" opacity="0.5" />
+        <rect x="0" y="8" width="16" height="4" rx="2" fill="#6C5CE7" opacity="0.3" />
+    </g>
+    
+    <!-- 左下角装饰 -->
+    <g transform="translate(240,420)">
+        <rect x="0" y="0" width="24" height="4" rx="2" fill="#FF6B6B" opacity="0.5" />
+        <rect x="0" y="8" width="16" height="4" rx="2" fill="#FF6B6B" opacity="0.3" />
+    </g>
+</svg>

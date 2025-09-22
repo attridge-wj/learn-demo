@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- 白色背景圆角矩形 -->
+  <rect width="512" height="512" rx="80" fill="#FFFFFF"/>
+  
+  <!-- 字母 Re - 占据60%以上空间 -->
+  <text x="256" y="360" font-family="Arial, sans-serif" font-size="280" font-weight="900" text-anchor="middle" fill="#000000">Re</text>
+</svg>

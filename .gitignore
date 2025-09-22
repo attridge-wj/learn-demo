@@ -1,0 +1,19 @@
+# 主项目及子项目的依赖文件
+**/node_modules
+# 主项目及子项目的构建产物
+**/rebirth
+# 主项目及子项目产生的日志文件
+**/**.log*
+# vscode编辑器配置文件
+.vscode/*
+# webstorm编辑器配置文件
+.idea/*
+# 其它
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+/dist
+/release

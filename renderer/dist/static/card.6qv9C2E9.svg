@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+    <!-- 定义渐变 -->
+    <defs>
+        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#FF8E8E;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#4ECDC4;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#6BE5D9;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FFD93D;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#FFE566;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#6C5CE7;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#8F7FF7;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+
+    <!-- 背景矩形 -->
+    <!-- <rect x="200" y="150" width="400" height="300" rx="20" fill="#f8f9fa" /> -->
+
+    <!-- 编辑器主体 -->
+    <g transform="translate(260,180)">
+        <!-- 工具栏 -->
+        <rect x="0" y="0" width="280" height="40" rx="8" fill="url(#gradient4)" />
+        
+        <!-- 工具按钮组 -->
+        <g transform="translate(10,10)">
+            <!-- 文本样式 -->
+            <rect x="0" y="0" width="20" height="20" rx="4" fill="url(#gradient1)" />
+            <rect x="25" y="0" width="20" height="20" rx="4" fill="url(#gradient1)" />
+            <rect x="50" y="0" width="20" height="20" rx="4" fill="url(#gradient1)" />
+            
+            <!-- 对齐方式 -->
+            <rect x="80" y="0" width="20" height="20" rx="4" fill="url(#gradient2)" />
+            <rect x="105" y="0" width="20" height="20" rx="4" fill="url(#gradient2)" />
+            
+            <!-- 插入功能 -->
+            <rect x="135" y="0" width="20" height="20" rx="4" fill="url(#gradient3)" />
+            <rect x="160" y="0" width="20" height="20" rx="4" fill="url(#gradient3)" />
+            <rect x="185" y="0" width="20" height="20" rx="4" fill="url(#gradient3)" />
+        </g>
+
+        <!-- 编辑区域 -->
+        <rect x="0" y="50" width="280" height="170" rx="8" fill="#fff" stroke="#e0e3ff" stroke-width="1" />
+        
+        <!-- 富文本内容示例 -->
+        <g transform="translate(15,65)">
+            <!-- 标题 -->
+            <rect x="0" y="0" width="160" height="24" rx="4" fill="url(#gradient4)" opacity="0.8" />
+            
+            <!-- 图片区域 -->
+            <rect x="0" y="34" width="100" height="60" rx="6" fill="url(#gradient2)" opacity="0.6" />
+            
+            <!-- 文本段落 -->
+            <g transform="translate(110,34)">
+                <rect x="0" y="0" width="140" height="6" rx="2" fill="#6C5CE7" opacity="0.4" />
+                <rect x="0" y="12" width="120" height="6" rx="2" fill="#6C5CE7" opacity="0.4" />
+                <rect x="0" y="24" width="130" height="6" rx="2" fill="#6C5CE7" opacity="0.4" />
+            </g>
+            
+            <!-- 引用块 -->
+            <rect x="0" y="104" width="250" height="40" rx="6" fill="url(#gradient1)" opacity="0.2" />
+            <rect x="6" y="112" width="238" height="24" rx="4" fill="#FF6B6B" opacity="0.3" />
+        </g>
+    </g>
+
+    <!-- 装饰元素 -->
+    <rect x="240" y="180" width="16" height="16" rx="4" fill="#FF6B6B" opacity="0.3" />
+    <rect x="540" y="400" width="12" height="12" rx="3" fill="#4ECDC4" opacity="0.3" />
+    <rect x="500" y="170" width="10" height="10" rx="3" fill="#FFD93D" opacity="0.3" />
+    <rect x="220" y="380" width="14" height="14" rx="4" fill="#6C5CE7" opacity="0.3" />
+    
+    <!-- 右上角装饰 -->
+    <g transform="translate(480,170)">
+        <rect x="0" y="0" width="24" height="4" rx="2" fill="#6C5CE7" opacity="0.5" />
+        <rect x="0" y="8" width="16" height="4" rx="2" fill="#6C5CE7" opacity="0.3" />
+    </g>
+    
+    <!-- 左下角装饰 -->
+    <g transform="translate(240,420)">
+        <rect x="0" y="0" width="24" height="4" rx="2" fill="#FF6B6B" opacity="0.5" />
+        <rect x="0" y="8" width="16" height="4" rx="2" fill="#FF6B6B" opacity="0.3" />
+    </g>
+
+    <!-- 光标效果 -->
+    <rect x="385" y="280" width="2" height="16" rx="1" fill="#6C5CE7" opacity="0.8">
+        <animate attributeName="opacity" values="0.8;0;0.8" dur="1.5s" repeatCount="indefinite" />
+    </rect>
+</svg>

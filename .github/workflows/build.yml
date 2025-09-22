@@ -1,0 +1,108 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.13.1'
+  ELECTRON_VERSION: '29.4.6'
+
+jobs:
+  # 构建macOS平台
+  build-macos:
+    name: Build macOS ${{ matrix.arch }}
+    runs-on: macos-latest
+    needs: lint
+    strategy:
+      matrix:
+        include:
+          - arch: 'x64'
+            platform: 'Intel'
+          - arch: 'arm64'
+            platform: 'Apple Silicon'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install system dependencies
+        run: |
+          # 安装 Python 3.11 (包含 distutils)
+          brew install python@3.11
+          
+          # 安装构建依赖
+          brew install cairo pango jpeg giflib librsvg pixman
+          
+          # 安装 Xcode Command Line Tools
+          xcode-select --install || true
+          
+          # 设置 Python 环境变量
+          echo "PYTHON=$(brew --prefix python@3.11)/bin/python3.11" >> $GITHUB_ENV
+          echo "PYTHONPATH=$(brew --prefix python@3.11)/lib/python3.11/site-packages" >> $GITHUB_ENV
+
+      - name: Configure Python environment
+        run: |
+          # 验证 Python 安装
+          python3.11 --version
+          
+          # 安装 setuptools (包含 distutils)
+          python3.11 -m pip install setuptools
+          
+          # 验证 distutils 可用
+          python3.11 -c "import distutils; print('distutils available')"
+
+      - name: Install dependencies
+        run: |
+          # 设置 Python 环境变量
+          export PYTHON=python3.11
+          export npm_config_python=python3.11
+          
+          # 安装依赖（会自动运行 electron-rebuild）
+          npm ci
+
+      # 设置公证环境变量
+      - name: Setup notarization environment
+        run: |
+          echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
+          echo "APPLE_ID_PASSWORD=${{ secrets.APPLE_ID_PASSWORD }}" >> $GITHUB_ENV
+          echo "APPLE_APP_SPECIFIC_PASSWORD=${{ secrets.APPLE_ID_PASSWORD }}" >> $GITHUB_ENV
+          echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> $GITHUB_ENV
+          echo "NOTARIZE_TEAM_ID=${{ secrets.NOTARIZE_TEAM_ID }}" >> $GITHUB_ENV
+
+      - name: Build application
+        run: npm run build
+
+      # 导入签名证书
+      - name: Import macOS certificate
+        uses: Apple-Actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+
+      - name: Build for macOS ${{ matrix.platform }}
+        run: |
+          echo "Building macOS ${{ matrix.platform }} version..."
+          if [ "${{ matrix.arch }}" = "x64" ]; then
+            npm run dist:mac-x64
+          elif [ "${{ matrix.arch }}" = "arm64" ]; then
+            npm run dist:mac-arm64
+          fi
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-${{ matrix.arch }}-build
+          path: |
+            release/*.dmg
+            release/*.app
