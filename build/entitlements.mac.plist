@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <!-- 沙盒权限 -->
-    <key>com.apple.security.app-sandbox</key>
-    <true/>
-    
     <!-- 基本 Electron 权限 -->
     <key>com.apple.security.cs.allow-jit</key>
     <true/>
