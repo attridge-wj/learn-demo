@@ -17,7 +17,6 @@ jobs:
   build-macos:
     name: Build macOS ${{ matrix.arch }}
     runs-on: macos-latest
-    needs: lint
     strategy:
       matrix:
         include:
