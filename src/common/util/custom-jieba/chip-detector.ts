@@ -13,35 +13,9 @@ export class ChipDetector {
    * 检测是否需要使用自定义分词器（仅 macOS Intel 芯片需要）
    */
   static needsCustomJieba(): boolean {
-    if (this._isIntel !== null) {
-      return this._isIntel
-    }
-
-    try {
-      // 只有 macOS Intel 芯片需要使用自定义分词器
-      if (process.platform === 'darwin') {
-        try {
-          const result = execSync('uname -m', { encoding: 'utf8', timeout: 1000 }).trim()
-          this._isIntel = result === 'x86_64' // macOS Intel
-          return this._isIntel
-        } catch (error) {
-          console.warn('无法执行 uname -m 命令:', error)
-          // 如果无法检测，保守地使用自定义分词器
-          this._isIntel = true
-          return true
-        }
-      }
-
       // Windows、Linux 等其他平台都使用 @node-rs/jieba
-      this._isIntel = false
-      return false
-
-    } catch (error) {
-      console.error('芯片检测失败:', error)
-      // 发生错误时，保守地假设需要自定义分词器
       this._isIntel = true
       return true
-    }
   }
 
   /**

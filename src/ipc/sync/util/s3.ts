@@ -13,7 +13,7 @@ interface S3Config {
   accessKeyId?: string;
   secretAccessKey?: string;
   bucket?: string;
-  provider?: 'aws' | 'tencent' | 'aliyun';
+  provider?: 'aws' | 'tencent' | 'aliyun' | 'bitiful';
   basePath?: string;
 }
 
@@ -51,6 +51,8 @@ export class S3Client {
         return `https://cos.${this.config.region}.myqcloud.com`;
       case 'aliyun':
         return `https://oss-${this.config.region}.aliyuncs.com`;
+      case 'bitiful':
+        return `https://s3.bitiful.net`;
       default:
         return undefined;
     }
