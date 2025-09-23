@@ -1,0 +1,130 @@
+name: Build Intel macOS
+
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.13.1'
+  ELECTRON_VERSION: '29.4.6'
+
+jobs:
+  # 构建Intel macOS平台
+  build-macos-intel:
+    name: Build Intel macOS
+    runs-on: macos-12  # 使用Intel runner确保原生模块兼容性
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install system dependencies
+        run: |
+          # 安装 Python 3.11 (包含 distutils)
+          brew install python@3.11
+          
+          # 安装构建依赖
+          brew install cairo pango jpeg giflib librsvg pixman
+          
+          # 安装 Xcode Command Line Tools
+          xcode-select --install || true
+          
+          # 设置 Python 环境变量
+          echo "PYTHON=$(brew --prefix python@3.11)/bin/python3.11" >> $GITHUB_ENV
+          echo "PYTHONPATH=$(brew --prefix python@3.11)/lib/python3.11/site-packages" >> $GITHUB_ENV
+
+      - name: Configure Python environment
+        run: |
+          # 验证 Python 安装
+          python3.11 --version
+          
+          # 安装 setuptools (包含 distutils)
+          python3.11 -m pip install setuptools
+          
+          # 验证 distutils 可用
+          python3.11 -c "import distutils; print('distutils available')"
+
+      - name: Install dependencies
+        run: |
+          # 设置 Python 环境变量
+          export PYTHON=python3.11
+          export npm_config_python=python3.11
+          
+          # 安装依赖
+          npm ci
+          
+          # 确保原生模块正确重建
+          npx electron-rebuild
+
+      # 设置公证环境变量
+      - name: Setup notarization environment
+        run: |
+          echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
+          echo "APPLE_ID_PASSWORD=${{ secrets.APPLE_ID_PASSWORD }}" >> $GITHUB_ENV
+          echo "APPLE_APP_SPECIFIC_PASSWORD=${{ secrets.APPLE_ID_PASSWORD }}" >> $GITHUB_ENV
+          echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> $GITHUB_ENV
+          echo "NOTARIZE_TEAM_ID=${{ secrets.NOTARIZE_TEAM_ID }}" >> $GITHUB_ENV
+
+      - name: Build application
+        run: npm run build
+
+      # 调试：检查原生模块状态
+      - name: Debug native modules
+        run: |
+          echo "=== 检查系统架构 ==="
+          uname -m
+          arch
+          echo ""
+          echo "=== 检查 @node-rs/jieba 模块 ==="
+          ls -la node_modules/@node-rs/jieba/
+          echo ""
+          echo "=== 检查原生绑定文件 ==="
+          find node_modules/@node-rs/jieba -name "*.node" -o -name "*.dylib" -o -name "*.so"
+          echo ""
+          echo "=== 检查原生绑定文件架构 ==="
+          find node_modules/@node-rs/jieba -name "*.node" -exec file {} \;
+          echo ""
+          echo "=== 检查 Electron 版本 ==="
+          npx electron --version
+          echo ""
+          echo "=== 检查 Node.js 版本 ==="
+          node --version
+          echo ""
+          echo "=== 尝试手动测试 @node-rs/jieba ==="
+          node -e "console.log('Testing @node-rs/jieba...'); try { require('@node-rs/jieba'); console.log('Success!'); } catch(e) { console.log('Error:', e.message); }"
+
+      # 导入签名证书
+      - name: Import macOS certificate
+        uses: Apple-Actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+
+      # 设置签名环境变量
+      - name: Setup signing environment
+        run: |
+          echo "CSC_TEAM_ID=${{ secrets.CSC_TEAM_ID }}" >> $GITHUB_ENV
+          echo "CSC_NAME=${{ secrets.CSC_NAME }}" >> $GITHUB_ENV
+
+      - name: Build Intel macOS
+        run: |
+          echo "Building Intel macOS version..."
+          npm run dist:mac-x64
+
+      - name: Upload Intel macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-intel-build
+          path: |
+            release/*.dmg
+            release/*.app
