@@ -192,7 +192,8 @@
       "mirror": "https://npmmirror.com/mirrors/electron/"
     },
     "asarUnpack": [
-      "node_modules/better-sqlite3/**/*"
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/@node-rs/jieba/**/*"
     ],
     "removePackageScripts": true,
     "removePackageKeywords": true,
