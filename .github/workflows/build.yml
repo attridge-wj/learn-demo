@@ -15,7 +15,7 @@ env:
 jobs:
   # 构建macOS平台
   build-macos:
-    name: Build macOS Universal
+    name: Build macOS x64
     runs-on: macos-latest
 
     steps:
@@ -63,9 +63,8 @@ jobs:
           # 安装依赖
           npm ci
           
-          # 强制为两个架构重建原生模块
+          # 强制为 x64 架构重建原生模块
           npx electron-rebuild --arch=x64
-          npx electron-rebuild --arch=arm64
           
           # 验证原生模块
           find node_modules/@node-rs/jieba -name "*.node" -exec file {} \;
@@ -96,15 +95,15 @@ jobs:
           echo "CSC_TEAM_ID=${{ secrets.CSC_TEAM_ID }}" >> $GITHUB_ENV
           echo "CSC_NAME=${{ secrets.CSC_NAME }}" >> $GITHUB_ENV
 
-      - name: Build for macOS Universal
+      - name: Build for macOS x64
         run: |
-          echo "Building macOS Universal version..."
-          npm run dist:mac-universal
+          echo "Building macOS x64 version..."
+          npm run dist:mac-x64
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-universal-build
+          name: macos-x64-build
           path: |
             release/*.dmg
             release/*.app

@@ -13,6 +13,7 @@
     "dist": "npm run build && electron-builder",
     "dist:win": "npm run build && electron-builder --win --x64",
     "dist:mac": "npm run build && electron-builder --mac",
+    "dist:mac-x64": "npm run build && electron-builder --mac --x64",
     "dist:mac-arm64": "npm run build && electron-builder --mac --arm64",
     "dist:mac-universal": "npm run build && electron-builder --mac --universal",
     "dist:linux": "npm run build && electron-builder --linux --x64",
@@ -148,7 +149,7 @@
         {
           "target": "dmg",
           "arch": [
-            "universal"
+            "x64"
           ]
         }
       ],
@@ -161,8 +162,7 @@
       "entitlementsInherit": "build/entitlements.mac.plist",
       "identity": "wenjian zhang (48N382RB7X)",
       "extendInfo": {
-        "ElectronTeamID": "48N382RB7X",
-        "LSRequiresNativeExecution": true
+        "ElectronTeamID": "48N382RB7X"
       },
       "notarize": false
     },
