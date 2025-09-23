@@ -16,11 +16,9 @@ import {
   searchDocumentContent,
   advancedSearchDocumentContent,
   searchFiles,
-  getDocumentContentSearchCount,
-  getDocumentContentIndexStatus,
-  rebuildDocumentContentIndex,
-  optimizeDocumentContentIndex
+  cleanUnknownTypeDocuments
 } from './service/document-page-content-search.service'
+import { resetCleanupStatus, getCleanupStatus } from './service/auto-cleanup.service'
 import { FileIndexService } from './service/file-index.service'
 import { FileIndexWorkerService } from './service/file-index-worker.service'
 import {
@@ -32,13 +30,13 @@ import {
 } from './service/document-index-ipc.service'
 import {
   parseDocumentText,
-  parseMultipleDocumentTexts,
-  getParsedDocumentContent
+  parseMultipleDocumentTexts
 } from './service/document-text-parse.service'
 import { queryDocumentPageContentByFileName } from './service/document-page-content-query-by-filename.service'
-import { ChineseSegmentUtil } from '../../common/util/chinese-segment.util'
 
 export function setupContentIndexIPC(): void {
+  // ==================== 基础内容搜索相关接口 ====================
+  
   // 基础搜索
   ipcMain.handle('content-index:search', async (_event: IpcMainInvokeEvent, request: SearchRequestDto): Promise<SearchResponseDto> => {
     try {
@@ -117,6 +115,8 @@ export function setupContentIndexIPC(): void {
     }
   })
 
+  // ==================== 文档页面内容搜索相关接口 ====================
+  
   // 文档页面内容搜索
   ipcMain.handle('content-index:search-document-content', async (_event: IpcMainInvokeEvent, request: {
     keyword: string
@@ -127,11 +127,9 @@ export function setupContentIndexIPC(): void {
   }) => {
     try {
       const results = await searchDocumentContent(request)
-      const total = await getDocumentContentSearchCount(request.keyword, request.cardId, request.spaceId)
-
       return {
         list: results,
-        total,
+        total: results.length,
         keyword: request.keyword,
         limit: request.limit || 10,
         offset: request.offset || 0
@@ -154,11 +152,9 @@ export function setupContentIndexIPC(): void {
   }) => {
     try {
       const results = await advancedSearchDocumentContent(request)
-      const total = await getDocumentContentSearchCount(request.keyword, request.cardId, request.spaceId)
-
       return {
         list: results,
-        total,
+        total: results.length,
         keyword: request.keyword,
         limit: request.limit || 10,
         offset: request.offset || 0
@@ -181,11 +177,9 @@ export function setupContentIndexIPC(): void {
   }) => {
     try {
       const results = await searchFiles(request)
-      const total = await getDocumentContentSearchCount(request.keyword, undefined, request.spaceId)
-
       return {
         list: results,
-        total,
+        total: results.length,
         keyword: request.keyword,
         limit: request.limit || 10,
         offset: request.offset || 0
@@ -197,49 +191,6 @@ export function setupContentIndexIPC(): void {
   })
 
 
-  // 获取文档页面内容索引状态
-  ipcMain.handle('content-index:get-document-content-index-status', async (_event: IpcMainInvokeEvent) => {
-    try {
-      return await getDocumentContentIndexStatus()
-    } catch (error) {
-      console.error('获取文档页面内容索引状态失败:', error)
-      throw error
-    }
-  })
-
-  // 获取文档页面内容搜索统计
-  ipcMain.handle('content-index:get-document-content-search-count', async (_event: IpcMainInvokeEvent, request: {
-    keyword: string
-    cardId?: string
-    spaceId?: string
-  }): Promise<number> => {
-    try {
-      return await getDocumentContentSearchCount(request.keyword, request.cardId, request.spaceId)
-    } catch (error) {
-      console.error('获取文档页面内容搜索统计失败:', error)
-      throw error
-    }
-  })
-
-  // 重建文档页面内容索引
-  ipcMain.handle('content-index:rebuild-document-content-index', async (_event: IpcMainInvokeEvent) => {
-    try {
-      return await rebuildDocumentContentIndex()
-    } catch (error) {
-      console.error('重建文档页面内容索引失败:', error)
-      throw error
-    }
-  })
-
-  // 优化文档页面内容索引
-  ipcMain.handle('content-index:optimize-document-content-index', async (_event: IpcMainInvokeEvent): Promise<void> => {
-    try {
-      await optimizeDocumentContentIndex()
-    } catch (error) {
-      console.error('优化文档页面内容索引失败:', error)
-      throw error
-    }
-  })
 
 
   // 索引单个文件
@@ -307,27 +258,6 @@ export function setupContentIndexIPC(): void {
     }
   })
 
-  // 更新文档分词
-  ipcMain.handle('content-index:update-document-segmentation', async (_event: IpcMainInvokeEvent, documentId: string) => {
-    try {
-      await ChineseSegmentUtil.updateDocumentSegmentation(documentId)
-      return { success: true }
-    } catch (error) {
-      console.error('更新文档分词失败:', error)
-      throw error
-    }
-  })
-
-  // 批量更新所有文档分词
-  ipcMain.handle('content-index:update-all-document-segmentation', async (_event: IpcMainInvokeEvent) => {
-    try {
-      await ChineseSegmentUtil.updateAllDocumentSegmentation()
-      return { success: true }
-    } catch (error) {
-      console.error('批量更新文档分词失败:', error)
-      throw error
-    }
-  })
 
   // 解析文档文本内容
   ipcMain.handle('content-index:parse-document-text', async (_event: IpcMainInvokeEvent, request: {
@@ -356,17 +286,6 @@ export function setupContentIndexIPC(): void {
     }
   })
 
-  // 获取已解析的文档内容
-  ipcMain.handle('content-index:get-parsed-document-content', async (_event: IpcMainInvokeEvent, request: {
-    filePath: string
-  }) => {
-    try {
-      return await getParsedDocumentContent(request.filePath)
-    } catch (error) {
-      console.error('获取已解析文档内容失败:', error)
-      throw error
-    }
-  })
 
   // ==================== 文件索引相关接口 ====================
 
@@ -481,6 +400,36 @@ export function setupContentIndexIPC(): void {
         data: [],
         message: `查询失败: ${error instanceof Error ? error.message : '未知错误'}`
       }
+    }
+  })
+
+  // 清理未知类型的文档索引
+  ipcMain.handle('content-index:clean-unknown-type-documents', async (_event: IpcMainInvokeEvent): Promise<{ deletedCount: number; ftsDeletedCount: number }> => {
+    try {
+      return await cleanUnknownTypeDocuments()
+    } catch (error) {
+      console.error('清理未知类型文档索引失败:', error)
+      throw error
+    }
+  })
+
+  // 重置自动清理状态
+  ipcMain.handle('content-index:reset-cleanup-status', async (_event: IpcMainInvokeEvent): Promise<void> => {
+    try {
+      resetCleanupStatus()
+    } catch (error) {
+      console.error('重置清理状态失败:', error)
+      throw error
+    }
+  })
+
+  // 获取清理状态
+  ipcMain.handle('content-index:get-cleanup-status', async (_event: IpcMainInvokeEvent): Promise<boolean> => {
+    try {
+      return getCleanupStatus()
+    } catch (error) {
+      console.error('获取清理状态失败:', error)
+      throw error
     }
   })
 

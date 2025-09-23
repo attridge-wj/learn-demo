@@ -1,6 +1,5 @@
 import { AppDataSource } from '../../../database/connection'
 import { ChineseSegmentUtil } from '../../../common/util/chinese-segment.util'
-import { hashingEmbed, cosineSimilarity } from '../utils/hashing-embedding.util'
 
 function addPrefixWildcardToMatchQuery(q: string): string {
   if (!q) return q
@@ -51,107 +50,45 @@ export async function searchDocumentContent(request: {
     const whereClause = whereConditions.length > 0 ? `AND ${whereConditions.join(' AND ')}` : ''
     const baseParams = [...(cardId ? [cardId] : []), ...(spaceId ? [spaceId] : []), limit, offset]
 
-    let results: any[] = []
-    
-    // 优化：先尝试分词搜索，如果结果足够则直接返回
+    // 进行分词搜索
     const searchKeywords = ChineseSegmentUtil.extractKeywords(keyword)
     console.log('搜索关键词分词结果:', searchKeywords)
     
-    if (searchKeywords.length > 0) {
-      const segmentedKeyword = addPrefixWildcardToMatchQuery(searchKeywords.join(' '))
-      console.log('分词搜索关键词:', segmentedKeyword)
+    if (searchKeywords.length === 0) {
+      console.log('分词结果为空，返回空结果')
+      return []
+    }
+
+    const segmentedKeyword = addPrefixWildcardToMatchQuery(searchKeywords.join(' '))
+    console.log('分词搜索关键词:', segmentedKeyword)
+    
+    try {
+      const results = await AppDataSource.query(`
+        SELECT
+          document_id as documentId,
+          space_id as spaceId,
+          card_id as cardId,
+          file_name as fileName,
+          file_type as fileType,
+          file_path as filePath,
+          origin_path as originPath,
+          page_number as pageNumber,
+          content,
+          rank
+        FROM document_page_content_fts
+        WHERE content_segmented MATCH ? ${whereClause}
+        ORDER BY rank
+        LIMIT ? OFFSET ?
+      `, [segmentedKeyword, ...baseParams])
       
-      try {
-        const segmentedResults = await AppDataSource.query(`
-          SELECT
-            document_id as documentId,
-            space_id as spaceId,
-            card_id as cardId,
-            file_name as fileName,
-            file_type as fileType,
-            file_path as filePath,
-            origin_path as originPath,
-            page_number as pageNumber,
-            content,
-            rank
-          FROM document_page_content_fts
-          WHERE content_segmented MATCH ? ${whereClause}
-          ORDER BY rank
-          LIMIT ? OFFSET ?
-        `, [segmentedKeyword, ...baseParams])
-        
-        results = segmentedResults
-        console.log('分词FTS5搜索结果数量:', results.length)
-        
-        // 如果分词搜索结果足够，直接返回，避免二次查询
-        if (results.length >= limit * 0.8) {
-          console.log('分词搜索结果充足，跳过原始关键词搜索')
-          if (results.length > 0) {
-            results = semanticReRankDocs(results, keyword)
-          }
-          console.log('最终搜索结果数量:', results.length)
-          return results
-        }
-      } catch (error) {
-        console.log('分词FTS5搜索失败:', error)
-        console.log('错误详情:', error instanceof Error ? error.message : String(error))
-      }
+      console.log('分词FTS5搜索结果数量:', results.length)
+      return results
+      
+    } catch (error) {
+      console.error('分词FTS5搜索失败:', error)
+      console.error('错误详情:', error instanceof Error ? error.message : String(error))
+      return []
     }
-
-    // 只有在分词搜索结果严重不足时才进行原始关键词搜索
-    // 提高阈值，减少耗时的原始关键词搜索
-    if (results.length === 0) {
-      const original = addPrefixWildcardToMatchQuery(keyword)
-      try {
-        console.log('开始原始关键词搜索，关键词:', original)
-        const startTime = Date.now()
-        
-        const originalResults = await AppDataSource.query(`
-          SELECT
-            document_id as documentId,
-            space_id as spaceId,
-            card_id as cardId,
-            file_name as fileName,
-            file_type as fileType,
-            file_path as filePath,
-            origin_path as originPath,
-            page_number as pageNumber,
-            content,
-            rank
-          FROM document_page_content_fts
-          WHERE content MATCH ? ${whereClause}
-          ORDER BY rank
-          LIMIT ? OFFSET ?
-        `, [original, ...baseParams])
-        
-        const endTime = Date.now()
-        const searchTime = endTime - startTime
-        
-        // 合并结果，去重
-        const existingIds = new Set(results.map(r => r.documentId))
-        const newResults = originalResults.filter(r => !existingIds.has(r.documentId))
-        results = [...results, ...newResults]
-        
-        console.log(`原始关键词FTS5搜索耗时: ${searchTime}ms`)
-        console.log('原始关键词FTS5搜索结果数量:', originalResults.length)
-        console.log('合并后总结果数量:', results.length)
-        
-        // 性能警告
-        if (searchTime > 1000) {
-          console.warn(`⚠️ 原始关键词搜索耗时过长: ${searchTime}ms，建议优化`)
-        }
-      } catch (error) {
-        console.log('原始关键词FTS5搜索失败:', error)
-      }
-    }
-
-    // 语义重排序
-    if (results.length > 0) {
-      results = semanticReRankDocs(results, keyword)
-    }
-
-    console.log('最终搜索结果数量:', results.length)
-    return results
   } catch (error) {
     console.error('搜索文档页面内容失败:', error)
     throw error
@@ -192,8 +129,15 @@ export async function advancedSearchDocumentContent(request: {
     }
     
     const whereClause = whereConditions.length > 0 ? `AND ${whereConditions.join(' AND ')}` : ''
-    const q = addPrefixWildcardToMatchQuery(keyword)
-    const params = [q, ...(cardId ? [cardId] : []), ...(spaceId ? [spaceId] : []), ...(fileType ? [fileType] : []), ...(fileName ? [`%${fileName}%`] : []), limit, offset]
+    
+    // 进行分词搜索
+    const searchKeywords = ChineseSegmentUtil.extractKeywords(keyword)
+    if (searchKeywords.length === 0) {
+      return []
+    }
+
+    const segmentedKeyword = addPrefixWildcardToMatchQuery(searchKeywords.join(' '))
+    const params = [segmentedKeyword, ...(cardId ? [cardId] : []), ...(spaceId ? [spaceId] : []), ...(fileType ? [fileType] : []), ...(fileName ? [`%${fileName}%`] : []), limit, offset]
     
     const results = await AppDataSource.query(`
       SELECT 
@@ -208,12 +152,12 @@ export async function advancedSearchDocumentContent(request: {
         fts.content,
         rank
       FROM document_page_content_fts fts
-      WHERE document_page_content_fts MATCH ? ${whereClause}
+      WHERE content_segmented MATCH ? ${whereClause}
       ORDER BY rank
       LIMIT ? OFFSET ?
     `, params)
 
-    return semanticReRankDocs(results, keyword)
+    return results
   } catch (error) {
     console.error('高级搜索文档页面内容失败:', error)
     throw error
@@ -254,8 +198,15 @@ export async function searchFiles(request: {
     }
     
     const whereClause = whereConditions.length > 0 ? `AND ${whereConditions.join(' AND ')}` : ''
-    const q = addPrefixWildcardToMatchQuery(keyword)
-    const params = [q, ...(spaceId ? [spaceId] : []), ...(filePath ? [filePath] : []), ...(fileType ? [fileType] : []), ...(fileName ? [`%${fileName}%`] : []), limit, offset]
+    
+    // 进行分词搜索
+    const searchKeywords = ChineseSegmentUtil.extractKeywords(keyword)
+    if (searchKeywords.length === 0) {
+      return []
+    }
+
+    const segmentedKeyword = addPrefixWildcardToMatchQuery(searchKeywords.join(' '))
+    const params = [segmentedKeyword, ...(spaceId ? [spaceId] : []), ...(filePath ? [filePath] : []), ...(fileType ? [fileType] : []), ...(fileName ? [`%${fileName}%`] : []), limit, offset]
     
     const results = await AppDataSource.query(`
       SELECT 
@@ -270,12 +221,12 @@ export async function searchFiles(request: {
         fts.content,
         rank
       FROM document_page_content_fts fts
-      WHERE document_page_content_fts MATCH ? ${whereClause}
+      WHERE content_segmented MATCH ? ${whereClause}
       ORDER BY rank
       LIMIT ? OFFSET ?
     `, params)
 
-    return semanticReRankDocs(results, keyword)
+    return results
   } catch (error) {
     console.error('文件搜索失败:', error)
     throw error
@@ -300,12 +251,20 @@ export async function getDocumentContentSearchCount(keyword: string, cardId?: st
     }
     
     const whereClause = whereConditions.length > 0 ? `AND ${whereConditions.join(' AND ')}` : ''
-    const params = [keyword, ...(cardId ? [cardId] : []), ...(spaceId ? [spaceId] : [])]
+    
+    // 进行分词搜索
+    const searchKeywords = ChineseSegmentUtil.extractKeywords(keyword)
+    if (searchKeywords.length === 0) {
+      return 0
+    }
+
+    const segmentedKeyword = addPrefixWildcardToMatchQuery(searchKeywords.join(' '))
+    const params = [segmentedKeyword, ...(cardId ? [cardId] : []), ...(spaceId ? [spaceId] : [])]
     
     const result = await AppDataSource.query(`
       SELECT COUNT(*) as count
       FROM document_page_content_fts fts
-      WHERE document_page_content_fts MATCH ? ${whereClause}
+      WHERE content_segmented MATCH ? ${whereClause}
     `, params)
 
     return parseInt(result[0]?.count || '0', 10)
@@ -414,18 +373,51 @@ export async function optimizeDocumentContentIndex(): Promise<void> {
     console.error('优化文档页面内容FTS索引失败:', error)
     throw error
   }
-} 
+}
 
 /**
- * 对文档结果做哈希向量重排
+ * 清理未知类型的文档索引
  */
-function semanticReRankDocs(results: any[], queryText: string) {
-  const qv = hashingEmbed(queryText)
-  return results
-    .map(item => {
-      const tv = hashingEmbed(item.content || '')
-      const score = cosineSimilarity(qv, tv)
-      return { ...item, relevanceScore: score }
-    })
-    .sort((a, b) => (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0))
+export async function cleanUnknownTypeDocuments(): Promise<{ deletedCount: number; ftsDeletedCount: number }> {
+  try {
+    console.log('开始清理未知类型的文档索引...')
+    
+    // 先查询要删除的记录数量
+    const countResult = await AppDataSource.query(`
+      SELECT COUNT(*) as count 
+      FROM document_page_content 
+      WHERE file_type = 'unknown'
+    `)
+    const totalCount = parseInt(countResult[0]?.count || '0', 10)
+    
+    if (totalCount === 0) {
+      console.log('没有找到未知类型的文档，无需清理')
+      return { deletedCount: 0, ftsDeletedCount: 0 }
+    }
+    
+    console.log(`找到 ${totalCount} 个未知类型的文档，开始清理...`)
+    
+    // 先删除 FTS5 表中的记录
+    const ftsDeleteResult = await AppDataSource.query(`
+      DELETE FROM document_page_content_fts 
+      WHERE file_type = 'unknown'
+    `)
+    console.log(`FTS5 表删除记录数: ${ftsDeleteResult.affectedRows || 0}`)
+    
+    // 再删除主表中的记录
+    const deleteResult = await AppDataSource.query(`
+      DELETE FROM document_page_content 
+      WHERE file_type = 'unknown'
+    `)
+    console.log(`主表删除记录数: ${deleteResult.affectedRows || 0}`)
+    
+    const deletedCount = deleteResult.affectedRows || 0
+    const ftsDeletedCount = ftsDeleteResult.affectedRows || 0
+    console.log(`清理完成，共删除 ${deletedCount} 个未知类型的文档索引（主表）和 ${ftsDeletedCount} 个 FTS5 索引记录`)
+    
+    return { deletedCount, ftsDeletedCount }
+  } catch (error) {
+    console.error('清理未知类型文档索引失败:', error)
+    throw error
+  }
 } 

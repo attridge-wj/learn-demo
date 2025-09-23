@@ -114,7 +114,7 @@ class ContentIndexWorker {
 
       // 获取所有支持的文件
       const allFiles = await this.getAllFiles(dirPath)
-      const supportedFiles = allFiles.filter(file => this.isSupportedDocument(file))
+      const supportedFiles = allFiles.filter(file => this.(file))
       
       this.indexStatus.totalFiles = supportedFiles.length
       this.indexStatus.supportedFiles = supportedFiles.length
