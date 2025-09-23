@@ -14,8 +14,8 @@
     "dist:win": "npm run build && electron-builder --win --x64",
     "dist:mac": "npm run build && electron-builder --mac",
     "dist:mac-x64": "npm run build && electron-builder --mac --x64",
-    "dist:mac-arm64": "npm run build && electron-builder --mac --arm64",
-    "dist:mac-universal": "npm run build && electron-builder --mac --universal",
+    "dist:mac-arm64": "npm run build && electron-builder --mac --arm64 --config.mac.arch=arm64",
+    "dist:mac-universal": "npm run build && electron-builder --mac --universal --config.mac.arch=universal",
     "dist:linux": "npm run build && electron-builder --linux --x64",
     "postinstall": "electron-builder install-app-deps",
     "analyze": "node scripts/analyze-bundle.js",
@@ -149,8 +149,8 @@
         {
           "target": "dmg",
           "arch": [
-            "x64",
-            "arm64"
+            "arm64",
+            "universal"
           ]
         }
       ],
@@ -192,8 +192,7 @@
       "mirror": "https://npmmirror.com/mirrors/electron/"
     },
     "asarUnpack": [
-      "node_modules/better-sqlite3/**/*",
-      "node_modules/@node-rs/jieba/**/*"
+      "node_modules/better-sqlite3/**/*"
     ],
     "removePackageScripts": true,
     "removePackageKeywords": true,

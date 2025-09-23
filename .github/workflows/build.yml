@@ -15,7 +15,7 @@ env:
 jobs:
   # 构建macOS平台
   build-macos:
-    name: Build macOS
+    name: Build macOS Universal
     runs-on: macos-latest
 
     steps:
@@ -113,15 +113,15 @@ jobs:
           echo "CSC_TEAM_ID=${{ secrets.CSC_TEAM_ID }}" >> $GITHUB_ENV
           echo "CSC_NAME=${{ secrets.CSC_NAME }}" >> $GITHUB_ENV
 
-      - name: Build for macOS
+      - name: Build for macOS Universal
         run: |
-          echo "Building macOS version..."
-          npm run dist:mac
+          echo "Building macOS Universal version..."
+          npm run dist:mac-universal
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-build
+          name: macos-universal-build
           path: |
             release/*.dmg
             release/*.app
