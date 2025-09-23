@@ -1,6 +1,6 @@
 {
   "name": "rebirth",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Electron main process application",
   "main": "dist/main.js",
   "scripts": {
