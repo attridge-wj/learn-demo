@@ -338,6 +338,11 @@ contextBridge.exposeInMainWorld('contentIndexApi', {
   // 文件夹内容索引 Worker 相关
   getFolderIndexStatus: () => ipcRenderer.invoke('content-index:get-folder-index-status'),
   stopFolderIndex: () => ipcRenderer.invoke('content-index:stop-folder-index'),
+  
+  // 清理相关
+  cleanUnknownTypeDocuments: () => ipcRenderer.invoke('content-index:clean-unknown-type-documents'),
+  resetCleanupStatus: () => ipcRenderer.invoke('content-index:reset-cleanup-status'),
+  getCleanupStatus: () => ipcRenderer.invoke('content-index:get-cleanup-status'),
 })
 
 // 文件索引 API

@@ -68,24 +68,6 @@ export async function detectFileEncoding(buffer: Buffer): Promise<{ content: str
 
 // 支持的文档类型
 export const SUPPORTED_EXTENSIONS = {
-  // 文本文件
-  '.txt': 'text',
-  '.md': 'markdown',
-  '.json': 'json',
-  '.xml': 'xml',
-  '.html': 'html',
-  '.css': 'css',
-  '.js': 'javascript',
-  '.ts': 'typescript',
-  '.py': 'python',
-  '.java': 'java',
-  '.cpp': 'cpp',
-  '.c': 'c',
-  '.h': 'header',
-  '.sql': 'sql',
-  '.log': 'log',
-  '.csv': 'csv',
-  
   // 文档文件
   '.pdf': 'pdf',
   '.doc': 'word',
@@ -95,16 +77,152 @@ export const SUPPORTED_EXTENSIONS = {
   '.xlsx': 'excel',
 }
 
+// 所有支持的文件类型（包括代码、脚本、文本文件）
+export const ALL_SUPPORTED_EXTENSIONS = new Set([
+  // 文档文件
+  '.pdf', '.doc', '.docx', '.pptx', '.xls', '.xlsx',
+  
+  // 纯文本文件
+  '.txt', '.md', '.markdown', '.rst', '.asciidoc', '.adoc', '.org', '.tex', '.latex',
+  '.log', '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.toml', '.ini', '.cfg', '.conf',
+  '.properties', '.env', '.gitignore', '.dockerignore', '.editorconfig', '.eslintrc', '.prettierrc',
+  
+  // 代码文件
+  // JavaScript/TypeScript
+  '.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs',
+  
+  // Python
+  '.py', '.pyw', '.pyc', '.pyo', '.pyd',
+  
+  // Java
+  '.java', '.class', '.jar', '.war',
+  
+  // C/C++
+  '.c', '.cpp', '.cc', '.cxx', '.h', '.hpp', '.hxx', '.c++', '.h++',
+  
+  // C#
+  '.cs', '.csproj', '.sln',
+  
+  // Go
+  '.go', '.mod', '.sum',
+  
+  // Rust
+  '.rs', '.toml',
+  
+  // PHP
+  '.php', '.phtml', '.php3', '.php4', '.php5', '.phps',
+  
+  // Ruby
+  '.rb', '.rbw', '.rake', '.gemspec',
+  
+  // Swift
+  '.swift',
+  
+  // Kotlin
+  '.kt', '.kts',
+  
+  // Scala
+  '.scala', '.sc',
+  
+  // Dart
+  '.dart',
+  
+  // R
+  '.r', '.R', '.Rmd',
+  
+  // MATLAB
+  '.m', '.mat',
+  
+  // Shell 脚本
+  '.sh', '.bash', '.zsh', '.fish', '.csh', '.tcsh', '.ksh',
+  
+  // Windows 脚本
+  '.bat', '.cmd', '.ps1', '.psm1', '.psd1',
+  
+  // 配置文件
+  '.config', '.xml', '.yaml', '.yml', '.json', '.toml', '.ini', '.cfg', '.conf',
+  '.properties', '.env', '.gitignore', '.dockerignore', '.editorconfig',
+  '.eslintrc', '.prettierrc', '.babelrc', '.postcssrc', '.stylelintrc',
+  
+  // 构建文件
+  '.makefile', '.cmake', '.cmake.in', '.gradle', '.maven', '.pom', '.build',
+  '.sln', '.vcxproj', '.vcproj', '.xcodeproj', '.pbxproj',
+  
+  // 数据库
+  '.sql', '.db', '.sqlite', '.sqlite3',
+  
+  // 网络相关
+  '.html', '.htm', '.css', '.scss', '.sass', '.less', '.styl',
+  '.vue', '.svelte', '.jsx', '.tsx',
+  
+  // 数据文件
+  '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.toml',
+  
+  // 日志文件
+  '.log', '.out', '.err',
+  
+  // 文档文件
+  '.readme', '.changelog', '.license', '.authors', '.contributors',
+  '.todo', '.notes', '.memo', '.diary',
+  
+  // 其他文本格式
+  '.rtf', '.odt', '.ods', '.odp', '.epub', '.mobi', '.azw',
+  '.djvu', '.fb2', '.lit', '.prc', '.pdb', '.chm',
+  
+  // 系统文件
+  '.hosts', '.fstab', '.passwd', '.shadow', '.group', '.gshadow',
+  '.crontab', '.atab', '.anacrontab',
+  
+  // 网络协议文件
+  '.htaccess', '.htpasswd', '.robots', '.sitemap',
+  
+  // 版本控制
+  '.gitattributes', '.gitmodules', '.gitkeep', '.git',
+  
+  // 包管理
+  '.package', '.bowerrc', '.npmrc', '.yarnrc', '.yarnrc.yml',
+  '.composer', '.composer.json', '.package.json', '.bower.json',
+  '.requirements.txt', '.Pipfile', '.Pipfile.lock', '.poetry.lock',
+  '.Gemfile', '.Gemfile.lock', '.Podfile', '.Podfile.lock',
+  '.Cargo.toml', '.Cargo.lock', '.go.mod', '.go.sum',
+  '.pom.xml', '.build.gradle', '.settings.gradle',
+  '.pubspec.yaml', '.pubspec.lock', '.mix.exs', '.mix.lock',
+  
+  // 测试文件
+  '.test.js', '.test.ts', '.spec.js', '.spec.ts', '.test.py', '.spec.py',
+  '.test.rb', '.spec.rb', '.test.php', '.spec.php',
+  
+  // 文档生成
+  '.adoc', '.asciidoc', '.rst', '.tex', '.latex', '.bib',
+  
+  // 其他
+  '.dockerfile', '.dockerignore', '.gitignore', '.gitattributes',
+  '.editorconfig', '.eslintrc', '.prettierrc', '.stylelintrc',
+  '.babelrc', '.postcssrc', '.webpack.config', '.rollup.config',
+  '.vite.config', '.nuxt.config', '.next.config', '.vue.config',
+  '.angular.json', '.tsconfig.json', '.jsconfig.json',
+  '.package-lock.json', '.yarn.lock', '.pnpm-lock.yaml',
+  '.nvmrc', '.node-version', '.python-version', '.ruby-version',
+  '.env.example', '.env.local', '.env.development', '.env.production',
+  '.env.test', '.env.staging', '.env.prod', '.env.dev'
+])
+
 // 获取文件类型
 export function getFileType(filePath: string): string {
   const ext = path.extname(filePath).toLowerCase()
-  return SUPPORTED_EXTENSIONS[ext as keyof typeof SUPPORTED_EXTENSIONS] || 'unknown'
+  // 如果在支持的文档类型中，返回对应的类型
+  if (ext in SUPPORTED_EXTENSIONS) {
+    return SUPPORTED_EXTENSIONS[ext as keyof typeof SUPPORTED_EXTENSIONS]
+  }
+  // 否则直接返回文件后缀（去掉点号）
+  return ext.substring(1) || 'unknown'
 }
 
 // 判断是否为支持的文档类型
 export function isSupportedDocument(filePath: string): boolean {
   const ext = path.extname(filePath).toLowerCase()
-  return ext in SUPPORTED_EXTENSIONS
+  // 检查是否在所有支持的文件类型中
+  return ALL_SUPPORTED_EXTENSIONS.has(ext)
 }
 
 // 提取文本文件内容

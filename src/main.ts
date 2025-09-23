@@ -17,6 +17,7 @@ import { setupStorageIPC } from './ipc/storage'
 import { setupSystemIPC } from './ipc/system'
 import { setupDocumentIPC } from './ipc/document'
 import { setupContentIndexIPC } from './ipc/content-index'
+import { autoCleanupUnknownDocuments } from './ipc/content-index/service/auto-cleanup.service'
 import { createWindow } from './window-manage'
 import { registerProtocol, registerProtocolApp, handleProtocol, handleProtocolApp } from './custom-protocol'
 import { setupEmbeddedWebViewerIPC } from './web-viewer-embedded'
@@ -151,6 +152,12 @@ if (!gotTheLock) {
     setupDocumentIPC();
     setupContentIndexIPC();
     setupEmbeddedWebViewerIPC();
+    
+    // 自动清理未知类型的文档索引（异步执行，不阻塞启动）
+    autoCleanupUnknownDocuments().catch(error => {
+      console.error('自动清理失败:', error)
+    })
+    
     // 启动剪藏 WebSocket 服务
     startWebClipperSocket()
     // 处理协议请求（在 setupStoreIPC 之后）

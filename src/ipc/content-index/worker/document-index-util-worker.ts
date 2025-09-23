@@ -54,16 +54,16 @@ export class DocumentIndexUtilWorker {
       for (const page of pages) {
         const pageEntity = new DocumentPageContentEntity()
         pageEntity.documentId = documentId
-        pageEntity.spaceId = spaceId || null
-        pageEntity.cardId = cardId || null
+        pageEntity.spaceId = spaceId || ''
+        pageEntity.cardId = cardId || ''
+        pageEntity.isLocalFile = 1 // 1表示本地文件
         pageEntity.fileName = path.basename(filePath)
         pageEntity.fileType = fileType
         pageEntity.filePath = storedPath
         pageEntity.originPath = filePath
         pageEntity.pageNumber = page.pageNumber || 1
         pageEntity.content = page.content || ''
-        pageEntity.contentSegmented = await ChineseSegmentUtil.segmentText(page.content || '')
-        pageEntity.wordCount = page.wordCount || 0
+        pageEntity.contentSegmented = ChineseSegmentUtil.toSearchKeywords(page.content || '')
         pageEntity.createTime = new Date()
         pageEntity.updateTime = new Date()
 
