@@ -1,11 +1,69 @@
 import { AppDataSource } from '../../database/connection'
-import { Jieba } from '@node-rs/jieba'
+import { CustomJieba } from './custom-jieba'
+import { ChipDetector } from './custom-jieba/chip-detector'
 
 /**
- * 中文分词工具类 - 使用 @node-rs/jieba
+ * 中文分词工具类 - 智能选择分词器
+ * Intel 芯片自动降级使用自定义分词器，Apple Silicon 使用 @node-rs/jieba
  */
 export class ChineseSegmentUtil {
-  private static jieba = new Jieba()
+  private static jieba: any = null
+  private static customJieba: CustomJieba | null = null
+  private static useCustomJieba: boolean = false
+  private static initialized: boolean = false
+
+  /**
+   * 异步初始化分词器
+   */
+  private static async initJieba() {
+    if (this.initialized) {
+      return // 已初始化
+    }
+
+    try {
+      // 检测是否需要使用自定义分词器
+      const needsCustom = ChipDetector.needsCustomJieba()
+      const archInfo = ChipDetector.getArchInfo()
+      console.log(`检测到平台: ${archInfo.platform} (${archInfo.arch})`)
+      console.log(`分词策略: ${archInfo.jiebaStrategy}`)
+
+      if (needsCustom) {
+        // 仅 macOS Intel 使用自定义分词器
+        console.log('使用自定义分词器 (macOS Intel 兼容)')
+        this.customJieba = new CustomJieba()
+        this.useCustomJieba = true
+      } else {
+        // Windows 和 macOS M芯片使用原生 jieba
+        console.log(`尝试加载 @node-rs/jieba (${archInfo.platform})`)
+        try {
+          // 动态导入 jieba
+          const { Jieba } = await import('@node-rs/jieba')
+          this.jieba = new Jieba()
+          this.useCustomJieba = false
+          console.log('成功加载 @node-rs/jieba')
+        } catch (jiebaError) {
+          console.warn('@node-rs/jieba 加载失败，降级使用自定义分词器:', jiebaError)
+          this.customJieba = new CustomJieba()
+          this.useCustomJieba = true
+        }
+      }
+      
+      this.initialized = true
+    } catch (error) {
+      console.warn('分词器初始化失败，降级使用自定义分词器:', error)
+      this.customJieba = new CustomJieba()
+      this.useCustomJieba = true
+      this.initialized = true
+    }
+  }
+
+  /**
+   * 获取分词器实例
+   */
+  private static async getJieba(): Promise<any> {
+    await this.initJieba()
+    return this.useCustomJieba ? this.customJieba! : this.jieba!
+  }
   
   // 停用词列表
   private static stopWords = new Set([
@@ -53,28 +111,30 @@ export class ChineseSegmentUtil {
   /**
    * 使用 jieba 进行分词（精确模式）
    */
-  static segment(text: string): string[] {
+  static async segment(text: string): Promise<string[]> {
     if (!text || typeof text !== 'string') {
       return []
     }
     try {
-      const words = this.jieba.cut(text, true)
+      const jieba = await this.getJieba()
+      const words = jieba.cut(text, true)
       return words.filter((word: string) => word.trim().length > 0)
     } catch (error) {
-      console.error('jieba分词失败:', error)
+      console.error('分词失败:', error)
       return []
     }
   }
 
   /**
-   * 智能分词（搜索模式，产生重叠词，利于召回如“节点/子节点”）
+   * 智能分词（搜索模式，产生重叠词，利于召回如"节点/子节点"）
    */
-  static smartSegment(text: string): string[] {
+  static async smartSegment(text: string): Promise<string[]> {
     if (!text || typeof text !== 'string') {
       return []
     }
     try {
-      const words = this.jieba.cutForSearch(text)
+      const jieba = await this.getJieba()
+      const words = jieba.cutForSearch(text)
       const filtered = words
         .map((w: string) => w.trim())
         .filter((w: string) => w.length > 0)
@@ -106,7 +166,7 @@ export class ChineseSegmentUtil {
       }
       return deduped
     } catch (error) {
-      console.error('jieba智能分词失败:', error)
+      console.error('智能分词失败:', error)
       return []
     }
   }
@@ -114,13 +174,14 @@ export class ChineseSegmentUtil {
   /**
    * 提取关键词（用于索引/搜索）
    */
-  static extractKeywords(text: string): string[] {
+  static async extractKeywords(text: string): Promise<string[]> {
     if (!text || typeof text !== 'string') {
       return []
     }
     try {
-      // 使用搜索模式，保留“节点/子节点”等重叠词
-      const words = this.jieba.cutForSearch(text)
+      // 使用搜索模式，保留"节点/子节点"等重叠词
+      const jieba = await this.getJieba()
+      const words = jieba.cutForSearch(text)
       const filtered = words
         .map((w: string) => w.trim())
         .filter((w: string) => w.length > 0)
@@ -149,7 +210,7 @@ export class ChineseSegmentUtil {
       }
       return deduped
     } catch (error) {
-      console.error('jieba关键词提取失败:', error)
+      console.error('关键词提取失败:', error)
       return []
     }
   }
@@ -159,8 +220,8 @@ export class ChineseSegmentUtil {
    * @param text 原始文本
    * @returns 搜索关键词字符串
    */
-  static toSearchKeywords(text: string): string {
-    const keywords = this.extractKeywords(text)
+  static async toSearchKeywords(text: string): Promise<string> {
+    const keywords = await this.extractKeywords(text)
     return keywords.join(' ')
   }
 
@@ -170,12 +231,61 @@ export class ChineseSegmentUtil {
    * @param keyword 关键词
    * @returns 是否包含
    */
-  static containsKeyword(text: string, keyword: string): boolean {
-    const textKeywords = this.extractKeywords(text)
-    const searchKeywords = this.extractKeywords(keyword)
+  static async containsKeyword(text: string, keyword: string): Promise<boolean> {
+    const textKeywords = await this.extractKeywords(text)
+    const searchKeywords = await this.extractKeywords(keyword)
     return searchKeywords.some(searchWord => 
       textKeywords.some(textWord => textWord.includes(searchWord) || searchWord.includes(textWord))
     )
+  }
+
+  /**
+   * 同步版本的分词方法（仅使用自定义分词器，用于兼容旧代码）
+   * @deprecated 推荐使用异步版本的 segment() 方法
+   */
+  static segmentSync(text: string): string[] {
+    if (!text || typeof text !== 'string') {
+      return []
+    }
+    try {
+      // 强制使用自定义分词器，避免异步问题
+      if (!this.customJieba) {
+        this.customJieba = new CustomJieba()
+      }
+      const words = this.customJieba.cut(text, true)
+      return words.filter((word: string) => word.trim().length > 0)
+    } catch (error) {
+      console.error('同步分词失败:', error)
+      return []
+    }
+  }
+
+  /**
+   * 同步版本的搜索关键词方法（仅使用自定义分词器，用于兼容旧代码）
+   * @deprecated 推荐使用异步版本的 toSearchKeywords() 方法
+   */
+  static toSearchKeywordsSync(text: string): string {
+    if (!text || typeof text !== 'string') {
+      return ''
+    }
+    try {
+      // 强制使用自定义分词器，避免异步问题
+      if (!this.customJieba) {
+        this.customJieba = new CustomJieba()
+      }
+      const words = this.customJieba.cutForSearch(text)
+      const filtered = words
+        .map((w: string) => w.trim())
+        .filter((w: string) => w.length > 0)
+        .filter((w: string) => !this.stopWords.has(w))
+        .filter((w: string) => !this.isPunctuation(w))
+        .filter((w: string) => (this.isAsciiAlnum(w) ? w.length >= 2 : w.length >= 2))
+
+      return filtered.join(' ')
+    } catch (error) {
+      console.error('同步搜索关键词提取失败:', error)
+      return ''
+    }
   }
 
   /**
@@ -202,7 +312,7 @@ export class ChineseSegmentUtil {
       const content = document[0].content || ''
       
       // 进行分词
-      const segmentedContent = this.toSearchKeywords(content)
+      const segmentedContent = await this.toSearchKeywords(content)
       
       // 更新FTS表中的分词字段
       await AppDataSource.query(`
@@ -231,7 +341,7 @@ export class ChineseSegmentUtil {
       let updatedCount = 0
       for (const doc of documents) {
         const content = doc.content || ''
-        const segmentedContent = this.toSearchKeywords(content)
+        const segmentedContent = await this.toSearchKeywords(content)
         
         await AppDataSource.query(`
           UPDATE document_page_content_fts 
